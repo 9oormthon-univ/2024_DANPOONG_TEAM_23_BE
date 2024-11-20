@@ -27,10 +27,10 @@ public class HealthLogService {
     public MemberInfoDto getInfo(String email, LocalDate date) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
         Optional<DiagnosisResult> diagnosisResult =
-            diagnosisResultRepository.findByUserIdAndDate(member, date);
+            diagnosisResultRepository.findByMemberAndDate(member, date);
         String content = "";
         if (diagnosisResult.isPresent()) {
-            content = diagnosisResult.get().getContent();
+            content = diagnosisResult.get().getShortContent();
         }
 
         return MemberInfoDto.builder()
@@ -47,7 +47,7 @@ public class HealthLogService {
         LocalDate endDate = LocalDate.of(year, month % 12 + 1, 1);
 
         List<DiagnosisResult> diagnosisResults = diagnosisResultRepository
-            .findByUserIdAndDateBetween(member, startDate, endDate);
+            .findByMemberAndDateBetween(member, startDate, endDate);
 
         List<ShortDiagnosisResultDto> shortDiagnosisLists = new ArrayList<>();
 

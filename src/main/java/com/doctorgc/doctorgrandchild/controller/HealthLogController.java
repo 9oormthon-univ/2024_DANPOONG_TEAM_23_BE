@@ -1,8 +1,9 @@
 package com.doctorgc.doctorgrandchild.controller;
 
+import com.doctorgc.doctorgrandchild.dto.HealthChangesResponseDto.ShortHealthChangesDto;
 import com.doctorgc.doctorgrandchild.dto.HealthLogResponseDto.DiagnosisListDto;
-import com.doctorgc.doctorgrandchild.dto.HealthLogResponseDto.HealthLogShortDto;
 import com.doctorgc.doctorgrandchild.dto.HealthLogResponseDto.MemberInfoDto;
+import com.doctorgc.doctorgrandchild.service.ClaudeService;
 import com.doctorgc.doctorgrandchild.service.HealthLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
@@ -18,10 +19,11 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/my")
+@RequestMapping("/api/v1/my")
 public class HealthLogController {
 
     private final HealthLogService healthLogService;
+    private final ClaudeService claudeService;
 
     @Operation(summary = "오늘의 건강 기록 조회", description = "이름 및 오늘 날짜의 건강 기록 조회")
     @GetMapping("/today")
@@ -36,5 +38,12 @@ public class HealthLogController {
         @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM") YearMonth date) {
         DiagnosisListDto diagnosisList = healthLogService.getDiagnosisLists("", date);
         return ResponseEntity.ok(diagnosisList);
+    }
+
+    @Operation(summary = "내 건강 변화 조회", description = "건강변화 간략 조회 조회")
+    @GetMapping("/health-changes")
+    public ResponseEntity<ShortHealthChangesDto> getShortHealthChanges(HttpServletRequest request) {
+        System.out.println(LocalDate.now());
+        return ResponseEntity.ok(claudeService.generateHealthChanges("minahkim026@gmail.com"));
     }
 }

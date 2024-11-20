@@ -2,6 +2,7 @@ package com.doctorgc.doctorgrandchild.dto;
 
 import com.doctorgc.doctorgrandchild.entity.DiagnosisResult;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,4 +46,5 @@ public class HealthLogResponseDto {
         private LocalDate date;
         private String content;
     }
+
 }

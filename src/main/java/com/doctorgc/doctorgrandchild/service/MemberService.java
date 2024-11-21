@@ -19,7 +19,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 이메일로 등록된 유저가 없습니다"));
         //생년월일 나이로 변환
-        String birthDate = requestDto.getBirthDate();
+        String birthDate = requestDto.getAge();
         if (birthDate.length() != 8){
             throw new IllegalArgumentException("유효하지 않은 생년월일 형식입니다");
         }

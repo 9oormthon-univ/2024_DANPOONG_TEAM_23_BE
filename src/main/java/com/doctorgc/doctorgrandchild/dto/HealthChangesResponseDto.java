@@ -12,7 +12,18 @@ public class HealthChangesResponseDto {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class HealthChangesDto {
+        private String reportContent;
+        private String disease;
+
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class ShortHealthChangesDto {
         private String content;
+
     }
 }

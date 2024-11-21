@@ -1,9 +1,12 @@
 package com.doctorgc.doctorgrandchild.service;
 
+import com.doctorgc.doctorgrandchild.dto.HealthChangesResponseDto.HealthChangesDto;
 import com.doctorgc.doctorgrandchild.dto.HealthChangesResponseDto.ShortHealthChangesDto;
 import com.doctorgc.doctorgrandchild.entity.DiagnosisResult;
+import com.doctorgc.doctorgrandchild.entity.HealthReport;
 import com.doctorgc.doctorgrandchild.entity.member.Member;
 import com.doctorgc.doctorgrandchild.repository.DiagnosisResultRepository;
+import com.doctorgc.doctorgrandchild.repository.HealthReportRepository;
 import com.doctorgc.doctorgrandchild.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -20,9 +23,10 @@ public class ClaudeService {
     private final AnthropicChatModel chatModel;
     private final DiagnosisResultRepository diagnosisResultRepository;
     private final MemberRepository memberRepository;
+    private final HealthReportRepository healthReportRepository;
 
     //한달 간의 건강 기록 데이터를 가져옴
-    public String getMonthlyDiagnosis(Member member) {
+    private String getMonthlyDiagnosis(Member member) {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusMonths(1);
         List<DiagnosisResult> diagnosisResults =
@@ -35,18 +39,30 @@ public class ClaudeService {
             .collect(Collectors.joining("\n"));
     }
 
-    //챗봇 답변에서 리포트 부분만 파싱
-    private String extractReportContent(String response) {
-        int startIndex = response.indexOf("<report>") + 8;
-        int endIndex = response.indexOf("</report>");
+    //내 건강 변화 결과 파싱
+    private HealthChangesDto extractReportContent(String response) {
+        int startDiseaseIndex = response.indexOf("<disease>");
+        int endDiseaseIndex = response.indexOf("</disease>");
 
-        return startIndex != -1 && endIndex != -1
-            ? response.substring(startIndex, endIndex).trim()
-            : "보고서를 생성할 수 없습니다.";
+        String disease = startDiseaseIndex != -1 && endDiseaseIndex != -1
+            ? response.substring(startDiseaseIndex + 9, endDiseaseIndex).trim()
+            : "";
+
+        int startReportIndex = response.indexOf("<report>");
+        int endReportIndex = response.indexOf("</report>");
+
+        String reportContent = startReportIndex != -1 && endReportIndex != -1
+            ? response.substring(startReportIndex + 8, endReportIndex).trim()
+            : "";
+
+        return HealthChangesDto.builder()
+            .reportContent(reportContent)
+            .disease(disease)
+            .build();
     }
 
-    public ShortHealthChangesDto generateHealthChanges(String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+
+    public ShortHealthChangesDto generateHealthChanges(Member member) {
 
         String basicPrompt = "You are an AI doctor tasked with analyzing health data for elderly patients. Your goal is to provide an easy-to-understand diagnostic report based on a month's worth of diagnostic records. Follow these instructions carefully:\n"
             + "\n"
@@ -94,7 +110,14 @@ public class ClaudeService {
             + "\n"
             + "7. Keep your writing concise and clear, using markdown syntax to emphasize important points.\n"
             + "\n"
-            + "Please provide your final report within <report> tags, following the specified format and requirements.";
+            + "CRITICAL INSTRUCTION FOR <disease> TAG:\n"
+            + "- ONLY insert ONE clean, precise disease name in the <disease> tag\n"
+            + "- NO symbols, special characters, or additional text\n"
+            + "- SELECT the single most representative disease from your diagnostic analysis\n"
+            + "- Use STANDARD medical terminology for the disease name\n"
+            + "- Ensure the disease name is clear, specific, and matches recognized medical nomenclature\n"
+            + "\n"
+            + "Please provide your final report within <report> tags. The <disease> tag MUST contain ONLY one precise disease name.";
         String monthlyDiagnosis = getMonthlyDiagnosis(member);
 
         //한달 간의 건강 진단 내역이 없으면 빈 문자열 반환
@@ -108,10 +131,19 @@ public class ClaudeService {
 
         String response = chatModel.call(prompt);
 
-        String report = extractReportContent(response);
+        HealthChangesDto report = extractReportContent(response);
+
+        HealthReport healthReport = HealthReport.builder()
+            .disease(report.getDisease())
+            .date(LocalDate.now())
+            .member(member)
+            .reportContent(report.getReportContent())
+            .build();
+
+        healthReportRepository.save(healthReport);
 
         return ShortHealthChangesDto.builder()
-            .content(report)
+            .content(report.getDisease())
             .build();
     }
 }

@@ -1,8 +1,6 @@
 package com.doctorgc.doctorgrandchild.dto;
 
-import com.doctorgc.doctorgrandchild.entity.DiagnosisResult;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,14 +16,6 @@ public class HealthLogResponseDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MemberInfoDto {
         private String name;
-        private String content;
-    }
-
-    @Builder
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PROTECTED)
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class HealthLogShortDto {
         private String content;
     }
 

@@ -2,12 +2,18 @@ package com.doctorgc.doctorgrandchild.service;
 
 
 
+import com.doctorgc.doctorgrandchild.config.auth.UserDetailsImpl;
+import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenDto;
+import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenProvider;
+import com.doctorgc.doctorgrandchild.config.util.CookieUtils;
 import com.doctorgc.doctorgrandchild.dto.KakaoTokenResponseDto;
 import com.doctorgc.doctorgrandchild.dto.KakaoUserInfoResponseDto;
 import com.doctorgc.doctorgrandchild.dto.LoginResponseDto;
 import com.doctorgc.doctorgrandchild.entity.member.Member;
 import com.doctorgc.doctorgrandchild.repository.MemberRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +35,8 @@ public class KakaoService {
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
     private final MemberRepository memberRepository;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
 
     //프론트로 부터 받은 인가코드를 카카오 서버에 보내 accesstoken 받는 메서드
@@ -83,8 +91,9 @@ public class KakaoService {
         return userInfo;
     }
     //받아온 유저정보로 회원가입&로그인하는 메서드(의사손주만의 로직)
-    public LoginResponseDto kakaoUserLogin(KakaoUserInfoResponseDto userInfo){
-        //isActive 도 확인해야
+    public LoginResponseDto kakaoUserLogin(KakaoUserInfoResponseDto userInfo, HttpServletResponse response){
+
+
         Long id = userInfo.getId();
         String nickname = userInfo.getKakaoAccount().getProfile().getNickName();
         String profileImage = "true".equals(userInfo.getKakaoAccount().getProfile().getIsDefaultImage()) ? null : userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
@@ -94,18 +103,35 @@ public class KakaoService {
 
         //등록된 멤버가 아니거나, 비활성화 상태라면 회원가입 처리
         if(finded_member == null || finded_member.isActive() == false){
-            Member member = Member.builder()
+            finded_member = Member.builder()
                                     .email(email)
                                     .name(nickname)
                                     .profileImage(profileImage)
                                     .isActive(true)
                                     .build();
-            memberRepository.save(member);
+            memberRepository.save(finded_member);
         }
-        return new LoginResponseDto(id,nickname,profileImage,email);
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(finded_member.getEmail());
+
+        boolean b = checkRegistedBefore(finded_member);
+        JwtTokenDto tokens = jwtTokenProvider.generateToken(userDetails);
+
+        CookieUtils.createCookie(response,tokens.getRefreshToken());
+        response.addHeader("accessToken",tokens.getAccessToken());
+
+
+
+        return new LoginResponseDto(id,nickname,profileImage,email,b);
 
     }
 
+    private boolean checkRegistedBefore(Member finded_member) {
+        if (finded_member.getAge() == null || finded_member.getSex() == null || finded_member.getMedicalConditions() == null){
+            return false;
+        }
+        return true;
+    }
 
 
 }

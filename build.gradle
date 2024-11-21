@@ -42,6 +42,14 @@ dependencies {
 	implementation 'org.webjars:webjars-locator-core:0.48' // 호환 가능한 버전으로 대체
 	implementation 'io.github.classgraph:classgraph:4.8.92' // 호환 가능한 최신 버전
 
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos'
+
+	testImplementation 'org.mockito:mockito-core:5.5.0'
+
 }
 
 tasks.named('test') {

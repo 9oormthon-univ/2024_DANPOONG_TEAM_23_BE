@@ -31,19 +31,29 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String profileImage;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Long age;
 
+    @Column(nullable = true)
     private String medicalConditions;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Sex sex;
 
     @Column(nullable = false)
     @Builder.Default
     private boolean isActive = true;
+
+    @Builder
+    public Member(String email, String name, String profileImage, boolean isActive){
+        this.email = email;
+        this.name = name;
+        this.profileImage = profileImage;
+        this.isActive = isActive;
+    }
 }
+

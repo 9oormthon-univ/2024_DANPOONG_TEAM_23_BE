@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux' //http요청을 webclient로 구현하기 위해
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation "org.springdoc:springdoc-openapi-ui:1.5.9"
 
@@ -38,6 +39,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.webjars:webjars-locator-core:0.48' // 호환 가능한 버전으로 대체
+	implementation 'io.github.classgraph:classgraph:4.8.92' // 호환 가능한 최신 버전
+
 }
 
 tasks.named('test') {

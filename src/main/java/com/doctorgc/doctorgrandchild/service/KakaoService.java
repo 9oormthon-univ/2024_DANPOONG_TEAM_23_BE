@@ -70,7 +70,7 @@ public class KakaoService {
                                                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // access token 인가
                                                     .header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
                                                     .retrieve()
-                                                    //TODO : Custom Exception
+                                                    //to do : Custom Exception
                                                     .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
                                                     .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
                                                     .bodyToMono(KakaoUserInfoResponseDto.class)

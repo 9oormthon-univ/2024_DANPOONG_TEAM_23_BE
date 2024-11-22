@@ -21,20 +21,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @Configuration
-@CrossOrigin(origins = "http://localhost:8080")
 public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-
     private final AuthenticationValidationFilter authenticationValidationFilter;
 
+    @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
             .requestMatchers(new AntPathRequestMatcher("/api/v1/**"))
             .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**"))
             .requestMatchers(new AntPathRequestMatcher("/swagger-ui.html"))
             .requestMatchers(new AntPathRequestMatcher("/error"))
-            .requestMatchers(new AntPathRequestMatcher("/favicon.ico"));
+            .requestMatchers(new AntPathRequestMatcher("/favicon.ico"))
+            .requestMatchers(new AntPathRequestMatcher("/webjars/**"));
     }
 
     @Bean

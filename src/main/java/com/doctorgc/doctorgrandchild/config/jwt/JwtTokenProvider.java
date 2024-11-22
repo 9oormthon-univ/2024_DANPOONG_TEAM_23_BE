@@ -2,6 +2,7 @@ package com.doctorgc.doctorgrandchild.config.jwt;
 
 
 
+import static java.lang.System.getenv;
 import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 import com.doctorgc.doctorgrandchild.config.auth.CustomUserDetailService;
@@ -18,6 +19,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,21 +34,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
+    Map<String, String> env = getenv();
+    private String secretKey = Base64.getEncoder().encodeToString(
+        Objects.requireNonNull(env.get("JWT_SECRET_KEY")).getBytes());
 
     private final CustomUserDetailService customUserDetailService;
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-        init(); // Base64로 인코딩
-    }
-
-    //객체 초기화 및 secretKey Base64로 인코딩
-    @PostConstruct //protected로 바꿔야
-    protected void init() {
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-    }
 
     //토큰 생성 (access, refresh 둘 다)
     public JwtTokenDto generateToken(UserDetailsImpl userDetails) {

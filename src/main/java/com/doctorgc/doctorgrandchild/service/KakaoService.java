@@ -2,6 +2,8 @@ package com.doctorgc.doctorgrandchild.service;
 
 
 
+import static java.lang.System.getenv;
+
 import com.doctorgc.doctorgrandchild.config.auth.UserDetailsImpl;
 import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenDto;
 import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenProvider;
@@ -14,6 +16,7 @@ import com.doctorgc.doctorgrandchild.repository.MemberRepository;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
-    @Value("${kakao.client.rest-api-key}")
+
     private String clientId;
     private final String KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";

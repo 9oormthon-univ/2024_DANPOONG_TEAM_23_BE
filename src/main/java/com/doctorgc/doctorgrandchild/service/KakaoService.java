@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class KakaoService {
 
-    private String clientId;
+    private final String clientId ="a7132f2cb8b0b1e5e2c7be3c9a416259";
     private final String KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 

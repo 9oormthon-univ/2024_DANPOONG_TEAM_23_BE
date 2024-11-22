@@ -6,6 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    database: mysql
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -21,3 +22,14 @@ spring:
           model: claude-3-5-sonnet-20241022
           temperature: 0
           max-tokens: 1024
+
+  server:
+    port: 8080
+
+  kakao:
+    client:
+      rest-api-key: ${KAKAO_REST_API_KEY}
+      redirect-uri: ${KAKAO_REDIRECT_URI}
+
+  jwt:
+    secret-key : ${JWT_SECRET_KEY}

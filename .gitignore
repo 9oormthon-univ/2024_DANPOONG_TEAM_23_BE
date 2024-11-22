@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+### yml ###
+src/main/resources/application-dev.yml
+src/main/resources/application-local.yml
+src/main/resources/application.yml
+
+###Testcode###
+src/test/java/com/doctorgc/doctorgrandchild/JwtTokenProviderTest.java
+

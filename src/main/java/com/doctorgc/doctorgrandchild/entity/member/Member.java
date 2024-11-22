@@ -33,16 +33,15 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String profileImage;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private Long age;
 
-    @Column(nullable = true)
     private String medicalConditions;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Sex sex;
 
@@ -72,5 +71,3 @@ public class Member {
         this.sex = sex;
     }
 }
-
-

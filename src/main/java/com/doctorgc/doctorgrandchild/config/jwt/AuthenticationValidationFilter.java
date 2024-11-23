@@ -46,17 +46,28 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authorization = request.getHeader("Authorization");
-        String token = authorization.substring(7, authorization.length());
+        String requestURI = request.getRequestURI();
 
-
-
-        if (jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
-            log.warn("JWT 토큰이 유효하지 않습니다.");
+        // 특정 경로는 필터를 건너뛰도록 설정
+        if (requestURI.startsWith("/api/v1/members")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
+
+
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring(7);
+
+            if (jwtTokenProvider.validateToken(token)) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                log.warn("JWT 토큰이 유효하지 않습니다. URL: {}", requestURI);
+            }
+        } else {
+            log.warn("Authorization 헤더가 없거나 잘못된 형식입니다. URL: {}", requestURI);
+        }
         filterChain.doFilter(request, response);
     }
 }

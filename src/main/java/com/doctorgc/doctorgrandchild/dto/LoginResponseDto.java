@@ -14,15 +14,18 @@ public class LoginResponseDto {
 
     private boolean ReigsteredBefore ;
 
+    private String accessToken;
 
 
 
-    public LoginResponseDto(Long id, String nickname, String profileImage, String email,boolean RegisteredBefore){
+
+    public LoginResponseDto(Long id, String nickname, String profileImage, String email,boolean RegisteredBefore,String accessToken){
         this.id = id;
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.email = email;
         this.ReigsteredBefore = RegisteredBefore;
+        this.accessToken = accessToken;
     }
 
 }

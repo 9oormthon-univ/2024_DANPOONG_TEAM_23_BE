@@ -38,6 +38,11 @@ public class JwtTokenProvider {
     private String secretKey = Base64.getEncoder().encodeToString(
         Objects.requireNonNull(env.get("JWT_SECRET_KEY")).getBytes());
 
+    @PostConstruct
+    public void init() {
+        log.info("Secret Key: {}", secretKey);
+    }
+
     private final CustomUserDetailService customUserDetailService;
 
     //토큰 생성 (access, refresh 둘 다)
@@ -58,7 +63,7 @@ public class JwtTokenProvider {
                                       .setExpiration(new Date(now.getTime() + (1000 * 60 * 60 *24 * 7)))
                                       .signWith(SignatureAlgorithm.HS256,secretKey)
                                       .compact();
-
+        log.info("Encoded Secret Key: {}", secretKey);
 
         return JwtTokenDto.builder()
                        .grantType("Bearer")
@@ -83,7 +88,7 @@ public class JwtTokenProvider {
     // 토큰 유효성, 만료일자 확인
     public boolean validateToken(String token) {
         try {
-
+            log.info("Encoded Secret Key: {}", secretKey);
             Jws<Claims> claims = Jwts.parser()
                                          .setSigningKey(secretKey)
                                          .parseClaimsJws(token);

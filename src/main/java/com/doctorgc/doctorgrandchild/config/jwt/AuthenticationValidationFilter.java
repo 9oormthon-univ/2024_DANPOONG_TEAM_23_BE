@@ -45,15 +45,16 @@ public class AuthenticationValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
         String requestURI = request.getRequestURI();
 
         // 특정 경로는 필터를 건너뛰도록 설정
-        if (requestURI.startsWith("/api/v1/members")) {
-            filterChain.doFilter(request, response);
+        if (requestURI.startsWith("/api/v1/members/kakao")||requestURI.startsWith("/callback")) {
+            log.info("Skipping AuthenticationValidationFilter for URL: {}", requestURI);
+            filterChain.doFilter(request, response); // 다음 필터로 넘김
             return;
         }
 
+        String authorization = request.getHeader("Authorization");
 
 
         if (authorization != null && authorization.startsWith("Bearer ")) {

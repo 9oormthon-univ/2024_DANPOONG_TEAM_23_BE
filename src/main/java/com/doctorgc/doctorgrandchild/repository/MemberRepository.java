@@ -15,4 +15,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying
     @Query("UPDATE Member m SET m.isActive = false WHERE m.email = :email")
     void deactivateMember(String email);
+
 }

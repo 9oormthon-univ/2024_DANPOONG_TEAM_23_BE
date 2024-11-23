@@ -37,6 +37,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(new AntPathRequestMatcher("/favicon.ico"))
                                 .requestMatchers(new AntPathRequestMatcher("/webjars/**"));
 
+
     }
 
     @Bean
@@ -48,7 +49,7 @@ public class WebSecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**","/callback")
                 .permitAll()
-                .requestMatchers("/api/v1/members/{code}").permitAll()
+                .requestMatchers("/api/v1/members/kakao/{code}").permitAll()
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
             )
             .sessionManagement(session -> session

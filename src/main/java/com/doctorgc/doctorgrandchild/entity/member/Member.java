@@ -50,14 +50,17 @@ public class Member {
     @Builder.Default
     private boolean isActive = true;
 
+    @Column(nullable = true)
+    private String kakaoAccessToken;
 
 
     @Builder
-    public Member(String email, String name, String profileImage, boolean isActive){
+    public Member(String email, String name, String profileImage, boolean isActive,String kakaoAccessToken){
         this.email = email;
         this.name = name;
         this.profileImage = profileImage;
         this.isActive = isActive;
+        this.kakaoAccessToken = kakaoAccessToken;
     }
 
     public void updateAge(Long age) {

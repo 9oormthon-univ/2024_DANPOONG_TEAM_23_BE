@@ -26,7 +26,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -36,7 +39,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class KakaoService {
 
-    private final String clientId ="{KAKAO_REST_API_KEY}";
+    private final String clientId ="a7132f2cb8b0b1e5e2c7be3c9a416259";
     private final String KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
@@ -96,16 +99,19 @@ public class KakaoService {
         log.info("[ Kakao Service ] NickName ---> {} ", userInfo.getKakaoAccount().getProfile().getNickName());
         log.info("[ Kakao Service ] ProfileImageUrl ---> {} ", userInfo.getKakaoAccount().getProfile().getProfileImageUrl());
         log.info("[ Kakao Service ] Email ---> {}", userInfo.getKakaoAccount().getEmail());
+
         return userInfo;
     }
     //받아온 유저정보로 회원가입&로그인하는 메서드(의사손주만의 로직)
-    public LoginResponseDto kakaoUserLogin(KakaoUserInfoResponseDto userInfo, HttpServletResponse response){
+    public LoginResponseDto kakaoUserLogin(KakaoUserInfoResponseDto userInfo, HttpServletResponse response,String kakaoAccessToken){
 
 
         Long id = userInfo.getId();
         String nickname = userInfo.getKakaoAccount().getProfile().getNickName();
         String profileImage = "true".equals(userInfo.getKakaoAccount().getProfile().getIsDefaultImage()) ? null : userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
         String email = userInfo.getKakaoAccount().getEmail();
+
+
         //db에서 member가 존재하는지 확인
         Member finded_member = memberRepository.findByEmail(email).orElse(null);
 
@@ -116,6 +122,7 @@ public class KakaoService {
                                     .name(nickname)
                                     .profileImage(profileImage)
                                     .isActive(true)
+                                    .kakaoAccessToken(kakaoAccessToken)
                                     .build();
             memberRepository.save(finded_member);
         }
@@ -144,22 +151,31 @@ public class KakaoService {
 
     public void unlinkKakaoUser(String accessToken){
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authoization","Bearer"+accessToken);
-        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // HTTP 요청 생성
+// HTTP 요청 생성
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         RestTemplate restTemplate = new RestTemplate();
         try {
-            restTemplate.exchange(
+            log.info("Sending unlink request to Kakao API...");
+            log.info("Headers: {}", headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
                     UNLINK_URL,       // 요청 URL
                     HttpMethod.POST,  // HTTP 메서드
                     entity,           // HTTP 헤더만 포함한 요청 엔티티
                     String.class      // 응답 타입
             );
+
+            log.info("Response from Kakao unlink API: {}", response.getBody());
+        } catch (HttpClientErrorException e) {
+            log.error("HTTP error during Kakao unlink: Status={}, Response={}",
+                    e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error during Kakao unlink request: {}", e.getMessage(), e);
             throw new RuntimeException("카카오 회원 탈퇴 실패: " + e.getMessage());
         }
     }

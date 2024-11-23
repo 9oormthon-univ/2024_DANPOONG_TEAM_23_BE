@@ -13,6 +13,7 @@ import com.doctorgc.doctorgrandchild.entity.member.Member;
 import com.doctorgc.doctorgrandchild.repository.MemberRepository;
 import com.doctorgc.doctorgrandchild.service.KakaoService;
 import com.doctorgc.doctorgrandchild.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class KakaoController {
     @Autowired
     private final MemberRepository memberRepository;
 
+    @Operation(summary = "카카오 로그인 및 회원가입", description = "인가코드로 카카오 로그인 및 회원가입")
     @GetMapping("/kakao/{code}")
     public ResponseEntity<LoginResponseDto> kakaoLogin(@PathVariable String code,
              HttpServletResponse httpServletResponse){
@@ -76,46 +78,47 @@ public class KakaoController {
 //        return ResponseEntity.ok(memberLoginResponse);
 //    }
 //
-//        @PatchMapping("/delete")
-//        public ResponseEntity<?> deleteAndDeactivateMember(@AuthenticationPrincipal UserDetailsImpl userDetails,HttpServletRequest request){
-//            try {
-//                //사용자 이메일 추출
-//                if (userDetails == null) {
-//                    log.error("UserDetails is null. Authentication failed.");
-//                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 정보가 없습니다.");
+        @Operation(summary = "회원 탈퇴", description ="unlink 및 db에서 deactive")
+        @PatchMapping("/delete")
+        public ResponseEntity<?> deleteAndDeactivateMember(@AuthenticationPrincipal UserDetailsImpl userDetails,HttpServletRequest request){
+            try {
+                //사용자 이메일 추출
+                if (userDetails == null) {
+                    log.error("UserDetails is null. Authentication failed.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 정보가 없습니다.");
+                }
+                log.info("Authenticated user: {}", userDetails.getUsername());
+                String email = userDetails.getUsername();
+//
+//                //Authorization 헤더에서 토큰 추출
+//                String authorizationHeader = request.getHeader("Authorization");
+//                if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization 헤더가 유효하지 않습니다.");
 //                }
-//                log.info("Authenticated user: {}", userDetails.getUsername());
-//                String email = userDetails.getUsername();
-////
-////                //Authorization 헤더에서 토큰 추출
-////                String authorizationHeader = request.getHeader("Authorization");
-////                if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-////                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization 헤더가 유효하지 않습니다.");
-////                }
-////
-////                String token = authorizationHeader.replace("Bearer ", "").trim();
 //
-//                //kakaoAccessToken 받아오기
-//                Member foundMember = memberRepository.findByEmail(email);
-//
-//
-//                //카카오 unlink API 호출
-//                kakaoService.unlinkKakaoUser(token);
-//
-//                //사용자 비활성화 처리
-//                memberRepository.deactivateMember(email);
-//
-//                return ResponseEntity.ok("회원탈퇴가 성공적으로 처리되었습니다.");
-//            } catch (RuntimeException e) {
-//                // 일반적인 RuntimeException 처리
-//                e.printStackTrace();
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 탈퇴 중 오류가 발생했습니다: " + e.getMessage());
-//            } catch (Exception e) {
-//                // 기타 모든 예외 처리
-//                e.printStackTrace();
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("알 수 없는 오류가 발생했습니다.");
-//            }
-//        }
+//                String token = authorizationHeader.replace("Bearer ", "").trim();
+
+                //kakaoAccessToken 받아오기
+                String token = memberRepository.findAccessTokenByEmail(email);
+
+
+                //카카오 unlink API 호출
+                kakaoService.unlinkKakaoUser(token);
+
+                //사용자 비활성화 처리
+                memberRepository.deactivateMember(email);
+
+                return ResponseEntity.ok("회원탈퇴가 성공적으로 처리되었습니다.");
+            } catch (RuntimeException e) {
+                // 일반적인 RuntimeException 처리
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 탈퇴 중 오류가 발생했습니다: " + e.getMessage());
+            } catch (Exception e) {
+                // 기타 모든 예외 처리
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("알 수 없는 오류가 발생했습니다.");
+            }
+        }
 
 
 

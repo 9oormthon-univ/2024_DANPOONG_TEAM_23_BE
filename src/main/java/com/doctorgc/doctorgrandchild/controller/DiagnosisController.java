@@ -29,7 +29,7 @@ public class DiagnosisController {
     @PostMapping("/start")
     public ResponseEntity<DiagnosisStartDto> startDiagnosis(@AuthenticationPrincipal UserDetails userDetails,
         @RequestBody UserMessageDto userMessageDto) {
-        String email = "minahkim026@gmail.com";
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(diagnosisService.startDiagnosis(email, userMessageDto));
     }
 
@@ -37,7 +37,7 @@ public class DiagnosisController {
     @PatchMapping("/chat/{diagnosisResultId}")
     public ResponseEntity<DiagnosisChatDto> continueDiagnosis(@PathVariable Long diagnosisResultId,
         @AuthenticationPrincipal UserDetails userDetails, @RequestBody UserMessageDto userMessageDto) {
-        String email = "minahkim026@gmail.com";
+        String email = userDetails.getUsername();
         return ResponseEntity.ok(diagnosisService.continueDiagnosis(email, userMessageDto, diagnosisResultId));
     }
 

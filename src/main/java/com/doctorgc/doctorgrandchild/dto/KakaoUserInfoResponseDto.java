@@ -24,7 +24,8 @@ public class KakaoUserInfoResponseDto {
     @JsonProperty("kakao_account")
     public KakaoAccount kakaoAccount;
 
-    //
+
+
 
     //uuid 등 추가 정보
     @JsonProperty("for_partner")
@@ -51,6 +52,8 @@ public class KakaoUserInfoResponseDto {
         //사용자 프로필 정보
         @JsonProperty("profile")
         public Profile profile;
+
+
 
 //        //이름 제공 동의 여부
 //        @JsonProperty("name_needs_agreement")

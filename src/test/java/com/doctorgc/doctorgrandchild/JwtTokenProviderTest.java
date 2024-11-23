@@ -65,7 +65,6 @@ public class JwtTokenProviderTest {
 
         // JwtTokenProvider 초기화
         JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(userDetailsService);
-        jwtTokenProvider.setSecretKey("j+xU9xgDwtM9KPuURElSU9iT6p43PxrkXAMJYg5zMimMtki9q42bXoVoVH7S1VhHLQC56LSgtSkf2QioKLu5lw==");
 
 
 

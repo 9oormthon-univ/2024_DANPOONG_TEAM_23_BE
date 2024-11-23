@@ -33,7 +33,6 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-
     @Column(nullable = true)
     private String profileImage;
 
@@ -51,14 +50,17 @@ public class Member {
     @Builder.Default
     private boolean isActive = true;
 
-    //credential? token 저장할 거 있어야 (인가코드를통해나온토큰 저장해야) -> 탈퇴구현위해서
+    @Column(nullable = true)
+    private String kakaoAccessToken;
+
 
     @Builder
-    public Member(String email, String name, String profileImage, boolean isActive){
+    public Member(String email, String name, String profileImage, boolean isActive,String kakaoAccessToken){
         this.email = email;
         this.name = name;
         this.profileImage = profileImage;
         this.isActive = isActive;
+        this.kakaoAccessToken = kakaoAccessToken;
     }
 
     public void updateAge(Long age) {

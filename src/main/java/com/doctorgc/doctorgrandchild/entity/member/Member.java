@@ -50,7 +50,7 @@ public class Member {
     @Builder.Default
     private boolean isActive = true;
 
-    //credential? token 저장할 거 있어야 (인가코드를통해나온토큰 저장해야) -> 탈퇴구현위해서
+
 
     @Builder
     public Member(String email, String name, String profileImage, boolean isActive){

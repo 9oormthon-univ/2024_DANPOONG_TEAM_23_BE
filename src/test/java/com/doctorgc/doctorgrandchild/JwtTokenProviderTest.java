@@ -47,7 +47,7 @@ public class JwtTokenProviderTest {
         MemberRepository memberRepository = mock(MemberRepository.class);
 
         Member member = Member.builder()
-                                .id(1L)
+                                .id(4L)
                                 .email("test1234@kakao.com")
                                 .name("woojoo")
                                 .profileImage(null)

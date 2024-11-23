@@ -34,9 +34,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class JwtTokenProvider {
 
-    Map<String, String> env = getenv();
-    private String secretKey = Base64.getEncoder().encodeToString(
-        Objects.requireNonNull(env.get("JWT_SECRET_KEY")).getBytes());
+//    Map<String, String> env = getenv();
+//    private String secretKey = Base64.getEncoder().encodeToString(
+//        Objects.requireNonNull(env.get("JWT_SECRET_KEY")).getBytes());
+
+    String secretKey = "j+xU9xgDwtM9KPuURElSU9iT6p43PxrkXAMJYg5zMimMtki9q42bXoVoVH7S1VhHLQC56LSgtSkf2QioKLu5lw==";
 
     @PostConstruct
     public void init() {

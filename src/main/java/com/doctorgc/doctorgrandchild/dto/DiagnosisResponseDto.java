@@ -36,6 +36,7 @@ public class DiagnosisResponseDto {
         private String  question;
         private List<String> options;
         private String result;
+        private String hospitalName;
     }
 
     @Builder

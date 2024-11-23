@@ -96,6 +96,7 @@ public class ClaudeService {
         return DiagnosisResultContentsDto.builder()
             .options(options)
             .result("")
+            .hospitalName("")
             .question(question)
             .build();
     }
@@ -132,6 +133,7 @@ public class ClaudeService {
         return DiagnosisResultContentsDto.builder()
             .question("")
             .options(new ArrayList<>())
+            .hospitalName(category)
             .result(result)
             .build();
 

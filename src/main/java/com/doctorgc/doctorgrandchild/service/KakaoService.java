@@ -22,9 +22,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -33,9 +36,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class KakaoService {
 
-    private final String clientId ="a7132f2cb8b0b1e5e2c7be3c9a416259";
+    private final String clientId ="{KAKAO_REST_API_KEY}";
     private final String KAUTH_TOKEN_URL_HOST ="https://kauth.kakao.com";
     private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
+
+    private static final String UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
 
     private final MemberRepository memberRepository;
 
@@ -123,9 +128,10 @@ public class KakaoService {
         CookieUtils.createCookie(response,tokens.getRefreshToken());
         response.addHeader("accessToken",tokens.getAccessToken());
 
+        String accessToken = tokens.getAccessToken();
 
 
-        return new LoginResponseDto(id,nickname,profileImage,email,b);
+        return new LoginResponseDto(id,nickname,profileImage,email,b,accessToken);
 
     }
 
@@ -134,6 +140,28 @@ public class KakaoService {
             return false;
         }
         return true;
+    }
+
+    public void unlinkKakaoUser(String accessToken){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authoization","Bearer"+accessToken);
+        headers.set("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP 요청 생성
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            restTemplate.exchange(
+                    UNLINK_URL,       // 요청 URL
+                    HttpMethod.POST,  // HTTP 메서드
+                    entity,           // HTTP 헤더만 포함한 요청 엔티티
+                    String.class      // 응답 타입
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("카카오 회원 탈퇴 실패: " + e.getMessage());
+        }
     }
 
 

@@ -32,4 +32,9 @@ public class MemberService {
         member.updateSex(requestDto.getSex());
         member.updateMedicalConditions(requestDto.getMedicalConditions());
     }
+
+    @Transactional
+    public void deActivateUser(String email){
+        memberRepository.deactivateMember(email);
+    }
 }

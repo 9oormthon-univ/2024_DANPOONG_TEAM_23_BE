@@ -39,11 +39,30 @@ public class DiagnosisResult {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String shortContent;
+
+    @Column(nullable = false)
+    private String hospitalCategory;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String userInput;
+
+    @Column(nullable = false)
+    private int questionCount;
+
+    public void setContent(String content) {this.content = content;}
+
+    public void setShortContent(String shortContent) {this.shortContent = shortContent;}
+
+    public void setHospitalCategory(String hospitalCategory) {this.hospitalCategory = hospitalCategory;}
+
+    public void setUserInput(String userInput) {this.userInput = userInput;}
+
+    public void setQuestionCount(int questionCount) {this.questionCount = questionCount;}
 
     @OneToMany(mappedBy = "diagnosisResult", cascade = CascadeType.ALL)
     private List<RecommendedHospital> recommendedHospitals; // 추천 병원 목록

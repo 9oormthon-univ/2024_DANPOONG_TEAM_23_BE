@@ -1,5 +1,9 @@
 package com.doctorgc.doctorgrandchild.controller;
 
+
+
+
+
 import com.doctorgc.doctorgrandchild.config.auth.UserDetailsImpl;
 import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenProvider;
 import com.doctorgc.doctorgrandchild.config.util.CookieUtils;
@@ -11,6 +15,7 @@ import com.doctorgc.doctorgrandchild.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/members")
@@ -71,6 +77,11 @@ public class KakaoController {
         public ResponseEntity<?> deleteAndDeactivateMember(@AuthenticationPrincipal UserDetailsImpl userDetails,HttpServletRequest request){
             try {
                 //사용자 이메일 추출
+                if (userDetails == null) {
+                    log.error("UserDetails is null. Authentication failed.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 정보가 없습니다.");
+                }
+                log.info("Authenticated user: {}", userDetails.getUsername());
                 String email = userDetails.getUsername();
 
                 //Authorization 헤더에서 토큰 추출

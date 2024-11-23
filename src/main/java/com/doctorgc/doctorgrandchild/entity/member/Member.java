@@ -33,6 +33,7 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
+
     @Column(nullable = true)
     private String profileImage;
 

@@ -27,21 +27,22 @@ public class Member {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String email; //email로 사용자 식별
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String profileImage;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Long age;
 
+    @Column(nullable = true)
     private String medicalConditions;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Sex sex;
 

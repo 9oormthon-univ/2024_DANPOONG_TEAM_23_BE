@@ -14,6 +14,7 @@ import com.doctorgc.doctorgrandchild.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,30 +67,31 @@ public class ClaudeService {
             .build();
     }
 
-    private DiagnosisResultContentsDto extractDiagnosisQuestion(String response) {
+    private DiagnosisResultContentsDto extractDiagnosisQuestion(String response, DiagnosisResult diagnosisResult) {
 
-        String question = "";
+        int startQuestionIndex = response.indexOf("<question>");
+        int endQuestionIndex = response.indexOf("</question>");
+
+        String question = startQuestionIndex != -1 && endQuestionIndex != -1
+            ? response.substring(startQuestionIndex + "<question>".length(), endQuestionIndex).trim()
+            : "";
+
+        question = question.replaceAll("[\"\\\\]", "").trim();
+
+        int startOptionsIndex = response.indexOf("<options>");
+        int endOptionsIndex = response.indexOf("</options>");
+
         List<String> options = new ArrayList<>();
-
-        Pattern questionPattern = Pattern.compile("<question>\"(.*?)\"</question>");
-        Matcher questionMatcher = questionPattern.matcher(response);
-        if (questionMatcher.find()) {
-            question = questionMatcher.group(1);
+        if (startOptionsIndex != -1 && endOptionsIndex != -1) {
+            String optionsStr = response.substring(startOptionsIndex + "<options>".length(), endOptionsIndex).trim();
+            optionsStr = optionsStr.replaceAll("[\\[\\]\"]", "");
+            options = Arrays.stream(optionsStr.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
         }
 
-        Pattern optionsPattern = Pattern.compile("<options>\\[(.*?)\\]</options>");
-        Matcher optionsMatcher = optionsPattern.matcher(response);
-        if (optionsMatcher.find()) {
-            String optionsStr = optionsMatcher.group(1);
-
-            String[] optionArray = optionsStr.split("\",\\s*\"");
-            for (String option : optionArray) {
-                option = option.replaceAll("\"", "").trim();
-                if (!option.isEmpty()) {
-                    options.add(option);
-                }
-            }
-        }
+        diagnosisResult.setQuestionCount(diagnosisResult.getQuestionCount() + 1);
+        diagnosisResultRepository.saveAndFlush(diagnosisResult);
 
         return DiagnosisResultContentsDto.builder()
             .options(options)
@@ -100,30 +102,32 @@ public class ClaudeService {
 
     private DiagnosisResultContentsDto extractDiagnosisResult(String response, DiagnosisResult diagnosisResult) {
 
-        String result = "";
-        String summary = "";
-        String category = "";
+        int startResultIndex = response.indexOf("<diagnosisResult>");
+        int endResultIndex = response.indexOf("</diagnosisResult>");
+        String result = startResultIndex != -1 && endResultIndex != -1
+            ? response.substring(startResultIndex + "<diagnosisResult>".length(), endResultIndex).trim()
+            : "";
 
-        Pattern resultPattern = Pattern.compile("<diagnosisResult>\"(.*?)\"</diagnosisResult>");
-        Matcher resultMatcher = resultPattern.matcher(response);
-        if (resultMatcher.find()) {
-            result = resultMatcher.group(1);
-        }
+        int startSummaryIndex = response.indexOf("<diagnosisResultSummary>");
+        int endSummaryIndex = response.indexOf("</diagnosisResultSummary>");
+        String summary = startSummaryIndex != -1 && endSummaryIndex != -1
+            ? response.substring(startSummaryIndex + "<diagnosisResultSummary>".length(), endSummaryIndex).trim()
+            : "";
 
-        // Summary 추출
-        Pattern summaryPattern = Pattern.compile("<diagnosisResultSummary>\"(.*?)\"</diagnosisResultSummary>");
-        Matcher summaryMatcher = summaryPattern.matcher(response);
-        if (summaryMatcher.find()) {
-            summary = summaryMatcher.group(1);
-        }
+        int startCategoryIndex = response.indexOf("<hospitalCategory>");
+        int endCategoryIndex = response.indexOf("</hospitalCategory>");
+        String category = startCategoryIndex != -1 && endCategoryIndex != -1
+            ? response.substring(startCategoryIndex + "<hospitalCategory>".length(), endCategoryIndex).trim()
+            : "";
 
-        // Hospital Category 추출
-        Pattern categoryPattern = Pattern.compile("<hospitalCategory>(.*?)</hospitalCategory>");
-        Matcher categoryMatcher = categoryPattern.matcher(response);
-        if (categoryMatcher.find()) {
-            category = categoryMatcher.group(1).trim();
-        }
+        result = result.replaceAll("[\"\\\\]", "").trim();
+        summary = summary.replaceAll("[\"\\\\]", "").trim();
+        category = category.replaceAll("[\"\\\\]", "").trim();
 
+        diagnosisResult.setContent(result);
+        diagnosisResult.setShortContent(summary);
+        diagnosisResult.setHospitalCategory(category);
+        diagnosisResultRepository.saveAndFlush(diagnosisResult);
 
         return DiagnosisResultContentsDto.builder()
             .question("")
@@ -234,13 +238,14 @@ public class ClaudeService {
             + "\n"
             + "Analyze the user data carefully. If you determine that you need more information to make an accurate diagnosis, generate additional questions. If you have enough information to make a diagnosis, provide the final diagnosis result and summary.\n"
             + "\n"
-            + "When generating additional questions:\n"
-            + "1. Keep questions concise and easy to understand, within 15 characters.\n"
+            + "When generating additional question:\n"
+            + "1. Keep the question concise and easy to understand, within 15 characters.\n"
             + "2. Provide a maximum of 5 answer options.\n"
-            + "3. Use markdown to **bold** important words or items in the question.\n"
-            + "4. Format the question and options as follows:\n"
+            + "3. Format the question and options as follows:\n"
             + "   <question>\"Question content\"</question>\n"
             + "   <options>[\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\", \"Option 5\"]</options>\n"
+            + "4. Provide only one question and one set of options.\n"
+            + "5. Keep polite tone in your question. Use honorific and formal language in korean."
             + "\n"
             + "When providing the final diagnosis result and summary:\n"
             + "1. Use markdown formatting.\n"
@@ -268,22 +273,25 @@ public class ClaudeService {
             + "Important requirements:\n"
             + "1. Base your response on the provided user data and any previous response data.\n"
             + "2. If the question count is 5, provide only the final diagnosis result, summary, and one hospital category to visit.\n"
-            + "3. Use a user-friendly tone and concise language in your responses.\n"
+            + "3. Use a polite tone and concise language in your responses.\n"
             + "4. Always use markdown formatting where specified.";
         String medicalConditions = member.getMedicalConditions();
         String userData = "";
         if(medicalConditions != null) {
-            userData += "사용자 기저질환: " + member.getMedicalConditions() + "\n";
+            userData += "사용자 기저질환: " + member.getMedicalConditions() + "\n"
+                        +"사용자 성별: " + member.getSex() + "\n"
+                        +"사용자 나이: " + member.getAge() + "\n";
         }
         userData += diagnosisResult.getUserInput() + "\n";
         String prompt = basicPrompt.replace("{{USER_DATA}}", userData);
         String finalPrompt = prompt.replace("{{QUESTION_COUNT}}",
             String.valueOf(diagnosisResult.getQuestionCount()));
-        String response = chatModel.call(prompt);
+        String response = chatModel.call(finalPrompt);
+        System.out.println(response);
         if (response.contains("<question>")) {
             return DiagnosisChatDto.builder()
                 .isQuestion(true)
-                .content(extractDiagnosisQuestion(response))
+                .content(extractDiagnosisQuestion(response, diagnosisResult))
                 .build();
         } else {
             return DiagnosisChatDto.builder()

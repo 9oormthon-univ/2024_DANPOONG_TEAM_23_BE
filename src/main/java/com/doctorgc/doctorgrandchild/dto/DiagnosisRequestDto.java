@@ -12,8 +12,7 @@ public class DiagnosisRequestDto {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class SelfDiagnosisDto {
-        private String selfDiagnosis;
+    public static class UserMessageDto {
+        private String userMessage;
     }
-
 }

@@ -1,13 +1,11 @@
 package com.doctorgc.doctorgrandchild.controller;
 
-import com.doctorgc.doctorgrandchild.config.jwt.JwtTokenProvider;
 import com.doctorgc.doctorgrandchild.dto.HealthChangesResponseDto.HealthChangesDto;
 import com.doctorgc.doctorgrandchild.dto.HealthChangesResponseDto.ShortHealthChangesDto;
 import com.doctorgc.doctorgrandchild.dto.HealthLogResponseDto.DiagnosisListDto;
 import com.doctorgc.doctorgrandchild.dto.HealthLogResponseDto.MemberInfoDto;
 import com.doctorgc.doctorgrandchild.service.HealthLogService;
 import com.doctorgc.doctorgrandchild.service.HealthReportService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;

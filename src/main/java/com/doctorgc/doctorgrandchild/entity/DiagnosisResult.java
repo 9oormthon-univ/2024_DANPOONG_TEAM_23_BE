@@ -1,7 +1,7 @@
 package com.doctorgc.doctorgrandchild.entity;
 
 import com.doctorgc.doctorgrandchild.entity.member.Member;
-import com.doctorgc.doctorgrandchild.entity.hospital.RecommendedHospital;
+//import com.doctorgc.doctorgrandchild.entity.hospital.RecommendedHospital;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,6 +64,6 @@ public class DiagnosisResult {
 
     public void setQuestionCount(int questionCount) {this.questionCount = questionCount;}
 
-    @OneToMany(mappedBy = "diagnosisResult", cascade = CascadeType.ALL)
-    private List<RecommendedHospital> recommendedHospitals; // 추천 병원 목록
+//    @OneToMany(mappedBy = "diagnosisResult", cascade = CascadeType.ALL)
+//    private List<RecommendedHospital> recommendedHospitals; // 추천 병원 목록
 }
